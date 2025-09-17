@@ -58,3 +58,29 @@ void pool_destroy(struct pool *p)
 
 size_t pool_used(struct pool *p) { return p->used; }
 size_t pool_available(struct pool *p) { return p->capacity - p->used; }
+
+int pool_init_aligned(struct pool *p, size_t obj_size, size_t count, size_t alignment)
+{
+    if (obj_size < sizeof(void *))
+        obj_size = sizeof(void *);
+
+    /* round up to alignment */
+    obj_size = (obj_size + alignment - 1) & ~(alignment - 1);
+
+    /* use aligned_alloc */
+    p->mem = aligned_alloc(alignment, obj_size * count);
+    if (!p->mem) return -1;
+
+    p->obj_size = obj_size;
+    p->capacity = count;
+    p->used = 0;
+
+    p->free_list = p->mem;
+    char *ptr = (char *)p->mem;
+    for (size_t i = 0; i < count - 1; i++) {
+        *(void **)(ptr + i * obj_size) = ptr + (i + 1) * obj_size;
+    }
+    *(void **)(ptr + (count - 1) * obj_size) = NULL;
+
+    return 0;
+}

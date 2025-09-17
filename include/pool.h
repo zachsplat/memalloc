@@ -29,3 +29,6 @@ size_t pool_used(struct pool *p);
 size_t pool_available(struct pool *p);
 
 #endif
+
+/* version with custom alignment */
+int pool_init_aligned(struct pool *p, size_t obj_size, size_t count, size_t alignment);
