@@ -14,3 +14,22 @@ and didn't want to pull in jemalloc for a small binary.
 make
 make test
 ```
+
+## api
+
+```c
+#include "pool.h"
+#include "slab.h"
+
+// pool: fixed-size blocks
+struct pool p;
+pool_init(&p, sizeof(my_struct), 1000);
+my_struct *obj = pool_alloc(&p);
+pool_free(&p, obj);
+
+// slab: variable sizes (8 - 1024, power of 2 buckets)
+struct slab s;
+slab_init(&s, 512);  // 512 objects per size class
+void *mem = slab_alloc(&s, 100);
+slab_free(&s, mem, 100);  // have to pass size, I know
+```
