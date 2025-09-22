@@ -33,3 +33,8 @@ slab_init(&s, 512);  // 512 objects per size class
 void *mem = slab_alloc(&s, 100);
 slab_free(&s, mem, 100);  // have to pass size, I know
 ```
+
+## thread safety
+
+`tspool.h` wraps the pool with a mutex. not great for high contention
+but fine for most uses. for real perf you'd want per-thread pools.
